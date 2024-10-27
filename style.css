@@ -1,0 +1,111 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
+
+body {
+    background-color: var(--c-bg);
+    overflow:hidden;
+    background-image: radial-gradient(ellipse, transparent 70%, rgba(12, 13, 17, 0.8) 100%);
+}
+:root {
+    --c-bg: #181818;
+    --c-bg_: rgb(201, 201, 201);
+    --c-txt: rgb(237, 237, 237);
+    --c-txt_: #0f0f0f;
+    --c-droplet: rgb(200,200,200);
+}
+.Content {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+* {
+    margin:0;
+    color: var(--c-txt);
+    font-family: "Rethink Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: italic;
+    box-sizing: border-box;
+}
+.droplet {
+    --DROP_LENGTH: 2s;
+    --START_SIZE:250px;
+    --start-x:0px;
+    --start-y:0px;
+    --end-x:0px;
+    --end-y:0px;
+    width: var(--START_SIZE);
+    height: var(--START_SIZE);
+    position: absolute;
+    left: calc(var(--START_SIZE) / -2);
+    top: calc(var(--START_SIZE) / -2);
+    border-radius: 100%;
+    background-color: transparent;
+    border: 75px solid var(--c-droplet);
+    animation: var(--DROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) fallingDroplet;
+    animation-fill-mode: forwards;
+    transition:0.15s background-color;
+}
+.droplet:hover {
+    background-color: var(--c-droplet)
+}
+@keyframes fallingDroplet {
+    0% {
+        opacity:0;
+        border-width:20px;
+        filter:blur(50px);
+        transform:translate(var(--start-x), var(--start-y)) scale(1);
+    }
+    10% {
+        filter:blur(0);
+    }
+    30% {
+        opacity:1;
+    }
+    100% {
+        border-width:calc(var(--START_SIZE) / 2);
+        opacity:1;
+        filter:blur(0);
+        transform:translate(var(--end-x), var(--end-y)) scale(0.05);
+    }
+}
+.TextContainer {
+    display:flex;
+    flex-direction:column;
+    width:fit-content;
+    position:absolute;
+    left:50%;
+    transform:translatex(-50%)
+}
+.Start {
+    text-align:center;
+    font-size:30px;
+    margin-top:30px;
+    font-style:normal;
+    z-index:110000;
+    background-color:var(--c-bg_);
+    color:var(--c-txt_);
+    padding:10px 30px;
+    display:inline-block;
+    border-radius:10px;
+    animation:4s infinite alternate-reverse ease-in-out breathing-text;
+}
+.Dialog {
+    text-align:center;
+    font-size:30px;
+    margin-top:30px;
+    filter:blur(1px);
+    text-shadow:0px 0px 10px var(--c-bg);
+    z-index:110000;
+    animation:5s infinite alternate-reverse ease-in-out breathing-text;
+}
+@keyframes breathing-text {
+    from {
+        filter:blur(1px);
+        transform:scale(1);
+    }
+    to {
+        filter:blur(0px);
+        transform:scale(1.05);
+    }
+}
