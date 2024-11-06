@@ -4,15 +4,33 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body onload="init()">
+        <div class="Cursor" id="cursor"></div>
         <div class="Content" id="Content">
             <div class="TextContainer">
-                <p class="Dialog" id="Dialog">i am the rain...</p>
-                <p class="Start">and she is the sun.</p>
+                <p class="Dialog" id="Dialog"></p>
+                <div class="gamemode" id="Gamemode1">
+                    <p class="startGame" onclick="startGame('normal')">and she is the sun.</p>
+                    <p class="gamemodeDesc" id="GamemodeDesc1"></p>
+                </div>
+                <!-- Cut gameplay concepts. Please dont look at me -->
+                <!-- <div class="gamemode" id="Gamemode2">
+                    <p class="startGame" onclick="startGame('endless')" style="--flash-color:rgb(255, 178, 189);">and you are eternal.</p>
+                    <p class="gamemodeDesc" id="GamemodeDesc2"></p>
+                </div>
+                <div class="gamemode" id="Gamemode3">
+                    <p class="startGame" onclick="startGame('debug')">testing mode.</p>
+                    <p class="gamemodeDesc" id="GamemodeDesc3"></p>
+                </div> -->
             </div>
             <div class="Raindrops" id="Raindrops">
-
+                <!-- Is populated by createRaindrop() -->
+                <!-- <div class="droplet debug type-down"></div> -->
             </div>
         </div>
+        <div class="Ripples" id="Ripples">
+            <!-- Is populated by spawnRipple() -->
+        </div>
+        <script src="song.js"></script>
         <script src="main.js"></script>
     </body>
 </html>

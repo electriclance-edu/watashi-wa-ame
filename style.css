@@ -2,21 +2,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 
 body {
-    background-color: var(--c-bg);
     overflow:hidden;
-    background-image: radial-gradient(ellipse, transparent 70%, rgba(12, 13, 17, 0.8) 100%);
+    background-color: #0d0e13;
 }
 :root {
-    --c-bg: #181818;
+    --c-bg: #14141c;
     --c-bg_: rgb(201, 201, 201);
     --c-txt: rgb(237, 237, 237);
     --c-txt_: #0f0f0f;
-    --c-droplet: rgb(200,200,200);
+    --c-droplet: rgb(255,255,255);
+    --c-droplet1: rgba(255,255,255,0.4);
+    --c-droplet_: rgb(26, 24, 43);
 }
 .Content {
     position: relative;
-    width: 100vw;
+    width: 100vh;
     height: 100vh;
+    background-color: var(--c-bg);
+    background-image: radial-gradient(ellipse, transparent 50%, rgba(12, 13, 17, 0.8) 70%);
+    position:absolute;
+    left:50%;
+    transform:translatex(-50%);
+}
+.Cursor {
+    --x:0px;
+    --y:0px;
+    --size:7vh;
+    position:absolute;
+    top:0;
+    transform:translate(
+        calc(var(--x) - var(--size) / 2),
+        calc(var(--y) - var(--size) / 2)
+    );
+    border:1vh solid white;
+    opacity:0.5;
+    pointer-events:none;
+    width:var(--size);
+    height:var(--size);
+    border-radius:var(--size);
+    z-index:1000000;
 }
 * {
     margin:0;
@@ -29,41 +53,80 @@ body {
 }
 .droplet {
     --DROP_LENGTH: 2s;
-    --START_SIZE:250px;
+    --PREDROP_LENGTH: 1.5s;
+    --START_SIZE:25vh;
     --start-x:0px;
     --start-y:0px;
     --end-x:0px;
     --end-y:0px;
+    --rotation:0deg;
     width: var(--START_SIZE);
     height: var(--START_SIZE);
     position: absolute;
-    left: calc(var(--START_SIZE) / -2);
-    top: calc(var(--START_SIZE) / -2);
+    left:calc(var(--START_SIZE) / -2);
+    top:calc(var(--START_SIZE) / -2);
     border-radius: 100%;
-    background-color: transparent;
-    border: 75px solid var(--c-droplet);
-    animation: var(--DROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) fallingDroplet;
+    background-color: var(--c-droplet_);
+    border: 0px solid var(--c-droplet);
+    animation:  var(--PREDROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) forwards dropletPrefall,
+                var(--DROP_LENGTH) var(--PREDROP_LENGTH) ease-in forwards fallingDroplet;
     animation-fill-mode: forwards;
-    transition:0.15s background-color;
+    transition:0.15s background-color, 0.2s border-color, 0.5s border-width;
+    transform-origin:center;
 }
-.droplet:hover {
-    background-color: var(--c-droplet)
+.droplet.type-left {
+    border-width:calc(var(--START_SIZE) / 7);
+    border-left-width:calc(var(--START_SIZE) / 3);
+}
+.droplet.type-up {
+    border-width:calc(var(--START_SIZE) / 7);
+    border-top-width:calc(var(--START_SIZE) / 3);
+}
+.droplet.type-right {
+    border-width:calc(var(--START_SIZE) / 7);
+    border-right-width:calc(var(--START_SIZE) / 3);
+}
+.droplet.type-down {
+    border-width:calc(var(--START_SIZE) / 7);
+    border-bottom-width:calc(var(--START_SIZE) / 3);
+}
+.droplet.state-destroy {
+    border-color:transparent;
+    background-color:transparent;
+}
+.droplet.state-misdirect {
+    border-width:calc(var(--START_SIZE) / 2);
+}
+.droplet.debug {
+    animation:  var(--PREDROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) forwards dropletPrefall,
+                var(--DROP_LENGTH) var(--PREDROP_LENGTH) ease-in forwards fallingDroplet;
+    position:absolute;
+    top: 50%;
+    left:50%;
+}
+@keyframes dropletPrefall {
+    from {
+        opacity:0;
+        filter:blur(100px);
+        transform:translate(var(--start-x), var(--start-y));
+    }
+    to {
+        opacity:0.3;
+        filter:blur(10px);
+        transform:translate(var(--start-x), var(--start-y));
+    }
 }
 @keyframes fallingDroplet {
     0% {
-        opacity:0;
-        border-width:20px;
-        filter:blur(50px);
+        opacity:0.3;
+        filter:blur(10px);
         transform:translate(var(--start-x), var(--start-y)) scale(1);
     }
-    10% {
+    5% {
         filter:blur(0);
-    }
-    30% {
         opacity:1;
     }
     100% {
-        border-width:calc(var(--START_SIZE) / 2);
         opacity:1;
         filter:blur(0);
         transform:translate(var(--end-x), var(--end-y)) scale(0.05);
@@ -77,10 +140,10 @@ body {
     left:50%;
     transform:translatex(-50%)
 }
-.Start {
+.startGame {
+    --flash-color:var(--c-bg_);
     text-align:center;
     font-size:30px;
-    margin-top:30px;
     font-style:normal;
     z-index:110000;
     background-color:var(--c-bg_);
@@ -88,7 +151,32 @@ body {
     padding:10px 30px;
     display:inline-block;
     border-radius:10px;
-    animation:4s infinite alternate-reverse ease-in-out breathing-text;
+    filter:brightness(1);
+    box-shadow:0px 0px 0px var(--c-bg_);
+    transition:0.5s;
+    user-select:none;
+    cursor:pointer;
+}
+body .gamemode .startGame:hover {
+    color:var(--c-txt_);
+    background-color:var(--flash-color);
+    animation:2s infinite alternate ease-in-out breathe-flash;
+}
+@keyframes breathe-flash {
+    from {
+        filter:brightness(1);
+        box-shadow:0px 0px 5px var(--flash-color);
+    }
+    to {
+        filter:brightness(1.3);
+        box-shadow:0px 0px 15px var(--flash-color);
+    }
+}
+.gamemodeDesc {
+    text-align:center;
+    font-size:20px;
+    margin-top:5px;
+    filter:blur(0.5px);
 }
 .Dialog {
     text-align:center;
@@ -108,4 +196,134 @@ body {
         filter:blur(0px);
         transform:scale(1.05);
     }
+}
+.typewritChar {
+    --index:0;
+    --speed:75ms;
+    animation:0.5s forwards fadeIn;
+    animation-delay:calc(var(--speed)*var(--index)); 
+    opacity:0; 
+}
+@keyframes fadeIn {
+    0% {
+        opacity:0;
+        filter:blur(10px);
+    }
+    50% {
+        opacity:1;
+    }
+    100% {
+        opacity:1;
+        filter:blur(0px);
+    }
+}
+.gamemode {
+    opacity:0; 
+    display:flex;
+    flex-direction:column;
+    border:20px solid transparent;
+    padding:20px;
+    transition:1s opacity;
+    pointer-events:none;
+}
+.gamemode.state-appear {
+    animation:2s forwards gamemode-fadeIn;
+    pointer-events:all;
+}
+@keyframes gamemode-fadeIn {
+    0% {
+        opacity:0;
+        filter:blur(10px);
+        border:5px solid var(--c-bg_);
+        padding:20px;
+    }
+    50% {
+        opacity:1;
+    }
+    100% {
+        opacity:1;
+        filter:blur(0px);
+        padding:10px;
+        border:20px solid transparent;
+    }
+}
+.gamemode.state-appear .startGame {
+    color:var(--c-bg_);
+    animation:1s forwards flash;
+    animation-delay:0.5s;
+}
+.gamemode.state-fade {
+    opacity:0 !important;
+    pointer-events:none;
+}
+@keyframes flash {
+    0% {
+        color:var(--c-bg_);
+    }
+    10% {
+        color:var(--c-txt_);
+    }
+    13% {
+        color:var(--c-bg_);
+    }
+    15% {
+        color:var(--c-txt_);
+    }
+    21% {
+        color:var(--c-bg_);
+    }
+    27% {
+        color:var(--c-txt_);
+    }
+    45% {
+        color:var(--c-bg_);
+    }
+    47% {
+        color:var(--c-txt_);
+    }
+    78% {
+        color:var(--c-bg_);
+    }
+    100% {
+        color:var(--c-txt_);
+    }
+}
+.effect-ripple {
+    --x:300px;
+    --y:300px;
+    --color:var(--c-bg_);
+    --endingSize:30vh;
+    position:absolute;
+    left:0;
+    top:0;
+    transform:translate(calc(var(--x) - 50%), calc(var(--y) - 50%));
+    border:0 solid var(--color);
+    border-radius:25vh;
+    box-sizing:border-box;
+    pointer-events:none;
+    animation: 0.5s ease-out forwards splash;
+}
+@keyframes splash {
+    0% {
+        width:0px;
+        height:0px;
+        opacity:0;
+    }
+    5% {
+        opacity:0.5;
+    }
+    40% {
+        border-width:2.5vh;
+    }
+    100% {
+        width:var(--endingSize);
+        height:var(--endingSize);
+        opacity:0;
+        border-width:0px;
+    }
+}
+.Raindrops, .Ripples {
+    position:absolute;
+    top:0;
+    left:0;
 }
