@@ -3,6 +3,7 @@ const RAINDROP_RANGE = 250;
 var SCREEN_CENTER;
 var BAR_LENGTH = 1500
 const raindropOffset = {x:0,y:0}
+var currentPoemLine = 0;
 
 var mouse_pos = {x:0,y:0}
 var gameInterval;
@@ -44,14 +45,14 @@ function intro() {
         var ping = new Audio("resources/c.mp3");
         ping.play();
     },2000);
-    setTimeout(()=>{
-        var gamemode = document.getElementById("Gamemode2");
-        var desc = document.getElementById("GamemodeDesc2");
-        typewrite(desc,"endless downpour. how long can you protect her?",10);
-        appear(gamemode)
-        var ping = new Audio("resources/c.mp3");
-        ping.play();
-    },2500);
+    // setTimeout(()=>{
+    //     var gamemode = document.getElementById("Gamemode2");
+    //     var desc = document.getElementById("GamemodeDesc2");
+    //     typewrite(desc,"endless downpour. how long can you protect her?",10);
+    //     appear(gamemode)
+    //     var ping = new Audio("resources/c.mp3");
+    //     ping.play();
+    // },2500);
     // setTimeout(()=>{
     //     var gamemode = document.getElementById("Gamemode3");
     //     var desc = document.getElementById("GamemodeDesc3");
@@ -61,16 +62,19 @@ function intro() {
     //     ping.play();
     // },3000);
 }
-function startGame(gamemode) {
+function startGame(gamemode,startQuarterBar = 0) {
     gameStartMS = Date.now();
     if (gamemode == "normal") {
+        document.getElementById("Dialog").classList.add("state-fadeout");
+        
         var ping = new Audio("resources/e.mp3");
         ping.play();
         music.pause();
         music = new Audio("resources/i_am_the_rain.mp3");
         music.loop = false;
+        music.currentTime = startQuarterBar / 4  * BAR_LENGTH / 1000;
         music.play();
-        currentQuarterBar = -4;
+        currentQuarterBar = startQuarterBar - 7;
         gameInterval = accurateInterval(attemptPlay,BAR_LENGTH/4)
     } else if (gamemode == "endless") {
         alert("work in progress")
@@ -85,22 +89,52 @@ function startGame(gamemode) {
         gameInterval = accurateInterval(debug_createSmallRaindrop,BAR_LENGTH/4)
     }
     document.getElementById("Gamemode1").classList.add("state-fade");
-    document.getElementById("Gamemode2").classList.add("state-fade");
-    document.getElementById("Gamemode3").classList.add("state-fade");
+    // document.getElementById("Gamemode2").classList.add("state-fade");
+    // document.getElementById("Gamemode3").classList.add("state-fade");
 }
 function stopGame() {
     gameInterval.cancel()
 }
 // For normal mode
 function attemptPlay() {
-    console.log("hii",currentQuarterBar);
+    // console.log("hii",currentQuarterBar);
+    // document.getElementById("Dialog").innerHTML = `${currentQuarterBar}`;
     attemptPlayAt(currentQuarterBar++);
 }
 function attemptPlayAt(time) {
     if (song.hasOwnProperty(time)) {
-        var type = song[time];
+        var data = song[time];
+
+        var type;
+        if (typeof data == 'string') {
+            type = data;
+        } else {
+            type = data.type;
+        }
+
         if (type == "drop") {
             createRaindrop()
+        } else if (type == "drop-debug") {
+            createRaindrop({
+                color:"rgb(255,0,0)"
+            })
+        } else if (type == "poemdrop") {
+            createRaindrop({
+                special:"poem"
+            });
+        } else if (type == "line-onedir") {
+            const opposite = {
+                "left":"right",
+                "right":"left",
+                "up":"down",
+                "down":"up",
+            }
+            createRaindropLine({
+                side:opposite[data.direction],
+                directions:Array(data.count).fill().map(() => "type-" + data.direction),
+                length:data.qtr_bars * data.count * BAR_LENGTH / 4,
+                poem:data.poem
+            })
         }
     }
 }
@@ -181,7 +215,8 @@ function createLineDeluge({
 function createRaindropLine({
         side = randomDirection(),
         directions = Array(4).fill().map(() => "type-" + randomDirection()),
-        length = BAR_LENGTH
+        length = BAR_LENGTH,
+        poem = false
 }={}) {
     const MARGIN = 10;
     var angle = {
@@ -202,15 +237,23 @@ function createRaindropLine({
         var spawnAt = angleTranslate(
             point.x,
             point.y,
-            (100 - 2 * MARGIN) / (drops - 1) * repeats,
+            (100 - 2 * MARGIN) / (drops + 1) * (repeats + 1),
             angle,
         )
+
+        var makePoem = false
+        if (poem) {
+            makePoem = true
+            poem = false
+        }
+
         createRaindrop({
             start_x:spawnAt.x,
             start_y:spawnAt.y,
             end_x:50 + randIntCircular(2),
             end_y:50 + randIntCircular(2),
-            direction:directions[repeats]
+            direction:directions[repeats],
+            special:makePoem ? "poem" : null
         })
     },length / drops,drops)
 }
@@ -311,7 +354,9 @@ function createRaindrop({
         end_x = 50 + randIntCircular(40),
         end_y = 50 + randIntCircular(40),
         drop_length = 2000,
-        direction = "type-" + randomDirection()
+        direction = "type-" + randomDirection(),
+        color = "var(--c-droplet)",
+        special = null
 }={}) {
     var elem = document.createElement("div");
     elem.classList.add("droplet")
@@ -322,10 +367,13 @@ function createRaindrop({
         --end-x:${end_x}vh;
         --end-y:${end_y}vh;
         --DROP_LENGTH:${drop_length}ms;
+        --color:${color};
         z-index:${100000 - dropletCount};
     `;
     
     elem.classList.add(direction)
+
+    if (special == "poem") elem.classList.add(`special-${special}`);
     
     document.getElementById("Raindrops").appendChild(elem);
 }
@@ -337,6 +385,27 @@ function destroyDrop(elem) {
     elem.classList.add("state-destroy");
     setTimeout(() => elem.parentNode.removeChild(elem), 200);
     elem.classList.add("ignore")
+
+    // Create poem line if drop is special drop
+    if (elem.classList.contains("special-poem")) {
+        createPoemLine(mouse_pos.x,mouse_pos.y);
+    }
+}
+function createPoemLine(x,y,pos = true) {
+    var elem = document.createElement("div");
+    elem.classList.add("poemline");
+    elem.classList.add(["poem_negative","poem_positive"][pos ? 1 : 0]);
+    elem.style = `
+        --x:${x}px;
+        --y:${y}px;
+    `
+    document.getElementById("Lines").appendChild(elem);
+    typewrite(elem, [poem_negative,poem_positive][pos ? 1 : 0][currentPoemLine++], 16);
+
+
+    setTimeout(()=>{
+        elem.parentNode.removeChild(elem);
+    },5000)
 }
 function misdirectDrop(elem) {
     var ping = new Audio("resources/sfx/1-misdirect.mp3");
@@ -344,6 +413,11 @@ function misdirectDrop(elem) {
     ping.play();
     elem.classList.add("state-misdirect");
     elem.classList.add("ignore")
+
+    // Create poem line if drop is special drop
+    if (elem.classList.contains("special-poem")) {
+        createPoemLine(mouse_pos.x,mouse_pos.y,false);
+    }
 }
 function spawnRipple({
         x = 0,
@@ -368,10 +442,11 @@ document.addEventListener("keypress",(e)=>{
     var elem = document.elementFromPoint(mouse_pos.x, mouse_pos.y);
 
     if (key == "Space") {
-        spawnRipple({
-            x:mouse_pos.x,
-            y:mouse_pos.y
-        });
+        // createPoemLine(mouse_pos.x,mouse_pos.y);
+        // spawnRipple({
+        //     x:mouse_pos.x,
+        //     y:mouse_pos.y
+        // });
         // changePolarity();
         // timings.push(Date.now() - gameStartMS)
         // createRaindrop();

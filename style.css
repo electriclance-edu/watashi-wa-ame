@@ -10,6 +10,7 @@ body {
     --c-bg_: rgb(201, 201, 201);
     --c-txt: rgb(237, 237, 237);
     --c-txt_: #0f0f0f;
+    --c-txt_dark: rgb(1, 6, 47);
     --c-droplet: rgb(255,255,255);
     --c-droplet1: rgba(255,255,255,0.4);
     --c-droplet_: rgb(26, 24, 43);
@@ -27,7 +28,7 @@ body {
 .Cursor {
     --x:0px;
     --y:0px;
-    --size:7vh;
+    --size:5vh;
     position:absolute;
     top:0;
     transform:translate(
@@ -60,6 +61,7 @@ body {
     --end-x:0px;
     --end-y:0px;
     --rotation:0deg;
+    --color:var(--c-droplet);
     width: var(--START_SIZE);
     height: var(--START_SIZE);
     position: absolute;
@@ -67,7 +69,7 @@ body {
     top:calc(var(--START_SIZE) / -2);
     border-radius: 100%;
     background-color: var(--c-droplet_);
-    border: 0px solid var(--c-droplet);
+    border: 0px solid var(--color);
     animation:  var(--PREDROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) forwards dropletPrefall,
                 var(--DROP_LENGTH) var(--PREDROP_LENGTH) ease-in forwards fallingDroplet;
     animation-fill-mode: forwards;
@@ -98,22 +100,25 @@ body {
     border-width:calc(var(--START_SIZE) / 2);
 }
 .droplet.debug {
-    animation:  var(--PREDROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) forwards dropletPrefall,
+    animation:  var(--PREDROP_LENGTH) linear forwards dropletPrefall,
                 var(--DROP_LENGTH) var(--PREDROP_LENGTH) ease-in forwards fallingDroplet;
     position:absolute;
     top: 50%;
     left:50%;
 }
 @keyframes dropletPrefall {
-    from {
+    0% {
         opacity:0;
         filter:blur(100px);
-        transform:translate(var(--start-x), var(--start-y));
+        transform:translate(var(--start-x), var(--start-y)) scale(1.3);
     }
-    to {
+    50% {
+        filter:blur(20px);
+    }
+    100% {
         opacity:0.3;
         filter:blur(10px);
-        transform:translate(var(--start-x), var(--start-y));
+        transform:translate(var(--start-x), var(--start-y)) scale(1);
     }
 }
 @keyframes fallingDroplet {
@@ -140,7 +145,7 @@ body {
     left:50%;
     transform:translatex(-50%)
 }
-.startGame {
+body .gamemode .startGame {
     --flash-color:var(--c-bg_);
     text-align:center;
     font-size:30px;
@@ -156,16 +161,12 @@ body {
     transition:0.5s;
     user-select:none;
     cursor:pointer;
-}
-body .gamemode .startGame:hover {
-    color:var(--c-txt_);
     background-color:var(--flash-color);
-    animation:2s infinite alternate ease-in-out breathe-flash;
 }
 @keyframes breathe-flash {
     from {
         filter:brightness(1);
-        box-shadow:0px 0px 5px var(--flash-color);
+        box-shadow:0px 0px 7px var(--flash-color);
     }
     to {
         filter:brightness(1.3);
@@ -195,6 +196,21 @@ body .gamemode .startGame:hover {
     to {
         filter:blur(0px);
         transform:scale(1.05);
+    }
+}
+.Dialog.state-fadeout {
+    animation:5s linear forwards dialog-fadeout;
+}
+@keyframes dialog-fadeout {
+    from {
+        filter:blur(0px);
+        opacity:1;
+        color:var(--c-txt);
+    }
+    to {
+        filter:blur(2px);
+        opacity:0;
+        color:var(--c-txt_dark);
     }
 }
 .typewritChar {
@@ -249,7 +265,8 @@ body .gamemode .startGame:hover {
 }
 .gamemode.state-appear .startGame {
     color:var(--c-bg_);
-    animation:1s forwards flash;
+    animation:  1s forwards flash,
+                5s infinite alternate ease-in-out breathe-flash;
     animation-delay:0.5s;
 }
 .gamemode.state-fade {
@@ -322,8 +339,36 @@ body .gamemode .startGame:hover {
         border-width:0px;
     }
 }
-.Raindrops, .Ripples {
+.Raindrops, .Ripples, .Lines {
     position:absolute;
     top:0;
     left:0;
+}
+.poemline {
+    transform:translate(calc(var(--x) - 50%), calc(var(--y) - 50%));
+    font-size:25px;
+    filter:blur(1px);
+    text-shadow:0px 0px 10px var(--c-bg);
+    text-shadow:0px 0px 10px var(--c-bg);
+    z-index:111000;
+    animation:  5s linear forwards poemline-fadeout;
+    position:absolute;
+    top:0;
+    left:0;
+    white-space:nowrap;
+    pointer-events:none;
+}
+@keyframes poemline-fadeout {
+    from {
+        transform:translate(calc(var(--x) - 50%), calc(var(--y) - 50% - 80px)) scale(1.05);
+        filter:blur(0px);
+        opacity:1;
+        color:var(--c-txt);
+    }
+    to {
+        transform:translate(calc(var(--x) - 50%), calc(var(--y) - 50% - 40px)) scale(1);
+        filter:blur(2px);
+        opacity:0;
+        color:var(--c-txt_dark);
+    }
 }
