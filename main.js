@@ -1,6 +1,7 @@
 var dropletCount = 0
 const RAINDROP_RANGE = 250;
 var SCREEN_CENTER;
+var SCREEN_SIZE;
 var BAR_LENGTH = 1500
 const raindropOffset = {x:0,y:0}
 var currentPoemLine = 0;
@@ -19,9 +20,14 @@ function init() {
         x:window.innerWidth / 2,
         y:window.innerHeight / 2
     }
+    SCREEN_SIZE = {
+        x:window.innerWidth,
+        y:window.innerHeight
+    }
     var onclick = ()=>{
         document.removeEventListener("mousedown", onclick, true);
         intro();
+        startRain();
     }
     document.addEventListener("mousedown", onclick, true);
 }
@@ -419,10 +425,21 @@ function misdirectDrop(elem) {
         createPoemLine(mouse_pos.x,mouse_pos.y,false);
     }
 }
+function startRain() {
+    setInterval(()=>{
+        spawnRipple({
+            speed:1 + randInt(0.5),
+            endingSize:20,
+            x:randInt(SCREEN_SIZE.x),
+            y:randInt(SCREEN_SIZE.y)
+        })
+    },300);
+}
 function spawnRipple({
         x = 0,
         y = 0,
-        color = "var(--c-bg_)",
+        speed = 0.5,
+        color = "var(--c-ripple)",
         endingSize = 30
 }={}) {
     var ripple = document.createElement("div");
@@ -430,11 +447,12 @@ function spawnRipple({
     ripple.style = `
         --x:${x}px;
         --y:${y}px;
+        --speed:${speed}s;
         --color:${color};
-        --ending-size:${endingSize}vh;
+        --endingSize:${endingSize}vh;
     `;
     document.getElementById("Ripples").appendChild(ripple);
-    setTimeout(() => ripple.parentNode.removeChild(ripple),1000);
+    setTimeout(() => ripple.parentNode.removeChild(ripple),speed*1000);
 }
 
 document.addEventListener("keypress",(e)=>{

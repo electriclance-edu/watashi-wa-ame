@@ -3,7 +3,7 @@
 
 body {
     overflow:hidden;
-    background-color: #0d0e13;
+    background-color: #10171d;
 }
 :root {
     --c-bg: #14141c;
@@ -14,15 +14,17 @@ body {
     --c-droplet: rgb(255,255,255);
     --c-droplet1: rgba(255,255,255,0.4);
     --c-droplet_: rgb(26, 24, 43);
+    --c-ripple: #3a426c83;
 }
 .Content {
     position: relative;
     width: 100vh;
     height: 100vh;
     background-color: var(--c-bg);
-    background-image: radial-gradient(ellipse, transparent 50%, rgba(12, 13, 17, 0.8) 70%);
+    background-image: radial-gradient(ellipse, transparent 30%, rgba(12, 13, 17, 0.3) 70%), url("resources/hikari.png");
     position:absolute;
     left:50%;
+    background-size:contain;
     transform:translatex(-50%);
 }
 .Cursor {
@@ -62,35 +64,38 @@ body {
     --end-y:0px;
     --rotation:0deg;
     --color:var(--c-droplet);
+    --thin-border-width:calc(var(--START_SIZE) / 20);
+    --thick-border-width:calc(var(--START_SIZE) / 3);
     width: var(--START_SIZE);
     height: var(--START_SIZE);
     position: absolute;
     left:calc(var(--START_SIZE) / -2);
     top:calc(var(--START_SIZE) / -2);
     border-radius: 100%;
-    background-color: var(--c-droplet_);
     border: 0px solid var(--color);
     animation:  var(--PREDROP_LENGTH) cubic-bezier(0.03, 0.21, 0.83, 0.22) forwards dropletPrefall,
                 var(--DROP_LENGTH) var(--PREDROP_LENGTH) ease-in forwards fallingDroplet;
     animation-fill-mode: forwards;
-    transition:0.15s background-color, 0.2s border-color, 0.5s border-width;
+    transition:0.2s border-color, 0.5s border-width;
     transform-origin:center;
+    box-shadow:0 0 20px var(--c-bg);
+    backdrop-filter:blur(10px);
 }
 .droplet.type-left {
-    border-width:calc(var(--START_SIZE) / 7);
-    border-left-width:calc(var(--START_SIZE) / 3);
+    border-width:var(--thin-border-width);
+    border-left-width:var(--thick-border-width);
 }
 .droplet.type-up {
-    border-width:calc(var(--START_SIZE) / 7);
-    border-top-width:calc(var(--START_SIZE) / 3);
+    border-width:var(--thin-border-width);
+    border-top-width:var(--thick-border-width);
 }
 .droplet.type-right {
-    border-width:calc(var(--START_SIZE) / 7);
-    border-right-width:calc(var(--START_SIZE) / 3);
+    border-width:var(--thin-border-width);
+    border-right-width:var(--thick-border-width);
 }
 .droplet.type-down {
-    border-width:calc(var(--START_SIZE) / 7);
-    border-bottom-width:calc(var(--START_SIZE) / 3);
+    border-width:var(--thin-border-width);
+    border-bottom-width:var(--thick-border-width);
 }
 .droplet.state-destroy {
     border-color:transparent;
@@ -177,14 +182,15 @@ body .gamemode .startGame {
     text-align:center;
     font-size:20px;
     margin-top:5px;
-    filter:blur(0.5px);
+    filter:blur(0.5px) drop-shadow(0 0 5px var(--c-bg)) drop-shadow(0 0 10px var(--c-bg));
 }
 .Dialog {
     text-align:center;
     font-size:30px;
     margin-top:30px;
     filter:blur(1px);
-    text-shadow:0px 0px 10px var(--c-bg);
+    text-shadow:0px 0px 10px var(--c-bg),
+                0px 0px 30px var(--c-bg);
     z-index:110000;
     animation:5s infinite alternate-reverse ease-in-out breathing-text;
 }
@@ -246,6 +252,7 @@ body .gamemode .startGame {
     animation:2s forwards gamemode-fadeIn;
     pointer-events:all;
 }
+
 @keyframes gamemode-fadeIn {
     0% {
         opacity:0;
@@ -308,7 +315,8 @@ body .gamemode .startGame {
 .effect-ripple {
     --x:300px;
     --y:300px;
-    --color:var(--c-bg_);
+    --speed:0.5s;
+    --color:var(--c-ripple);
     --endingSize:30vh;
     position:absolute;
     left:0;
@@ -318,7 +326,7 @@ body .gamemode .startGame {
     border-radius:25vh;
     box-sizing:border-box;
     pointer-events:none;
-    animation: 0.5s ease-out forwards splash;
+    animation: var(--speed) ease-out forwards splash;
 }
 @keyframes splash {
     0% {
@@ -330,7 +338,7 @@ body .gamemode .startGame {
         opacity:0.5;
     }
     40% {
-        border-width:2.5vh;
+        border-width:1.5vh;
     }
     100% {
         width:var(--endingSize);
