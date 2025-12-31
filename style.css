@@ -27,6 +27,43 @@ body {
     background-size:contain;
     transform:translatex(-50%);
 }
+.Vignette {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100vw;
+    height:100vh;
+    background:radial-gradient(circle, transparent 30%, rgba(3,3,20,0.5) 70%);
+    z-index:1000000;
+    pointer-events:none;
+}
+.endScreen {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    font-size:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-shadow:0 0 10px black, 0 0 50px black, 0 0 30px black;
+    display:none;
+    z-index:100000000000000;
+}
+.WinScreen {
+    background-color:rgba(0, 255, 179, 0.3);
+}
+.LoseScreen {
+    background-color:rgba(255, 0, 98, 0.3);
+}
+.Life {
+    position:absolute;
+    left:50px;
+    bottom:10px;
+    font-size:100px;
+    display:none;
+}
 .Cursor {
     --x:0px;
     --y:0px;

@@ -120,4 +120,7 @@ const song = {
         qtr_bars:2,
         poem:true
     },
+    250:{
+        type:"end"
+    }
 }

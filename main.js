@@ -15,6 +15,8 @@ var currentQuarterBar; // Holds the current quarter bar. Updated by attemptPlay(
 var gameStartMS;
 var timings = [];
 
+var life = 3;
+
 function init() {
     SCREEN_CENTER = {
         x:window.innerWidth / 2,
@@ -30,6 +32,8 @@ function init() {
         startRain();
     }
     document.addEventListener("mousedown", onclick, true);
+    
+    document.getElementById("life").innerHTML = life;
 }
 function intro() {
     music = new Audio("resources/i_am_the_rain_intro.mp3");
@@ -69,6 +73,7 @@ function intro() {
     // },3000);
 }
 function startGame(gamemode,startQuarterBar = 0) {
+    document.getElementById("life").style.display = "block";
     gameStartMS = Date.now();
     if (gamemode == "normal") {
         document.getElementById("Dialog").classList.add("state-fadeout");
@@ -141,6 +146,8 @@ function attemptPlayAt(time) {
                 length:data.qtr_bars * data.count * BAR_LENGTH / 4,
                 poem:data.poem
             })
+        } else if (type == "end") {
+            win();
         }
     }
 }
@@ -380,6 +387,15 @@ function createRaindrop({
     elem.classList.add(direction)
 
     if (special == "poem") elem.classList.add(`special-${special}`);
+
+    setTimeout(()=>{
+        if (elem && !elem.classList.contains("state-misdirect") && !elem.classList.contains("state-destroy")) {
+            console.log(elem);
+            console.log ("U slow...")
+            life -= 1;
+            checkIfLose();
+        }
+    },3500)
     
     document.getElementById("Raindrops").appendChild(elem);
 }
@@ -424,6 +440,9 @@ function misdirectDrop(elem) {
     if (elem.classList.contains("special-poem")) {
         createPoemLine(mouse_pos.x,mouse_pos.y,false);
     }
+    life -= 1;
+
+    checkIfLose();
 }
 function startRain() {
     setInterval(()=>{
@@ -453,6 +472,19 @@ function spawnRipple({
     `;
     document.getElementById("Ripples").appendChild(ripple);
     setTimeout(() => ripple.parentNode.removeChild(ripple),speed*1000);
+}
+function checkIfLose() {
+    document.getElementById("life").innerHTML = life;
+    if (life <= 0) {
+        lose();
+    }
+}
+function lose() {
+    clearInterval(gameInterval);
+    document.getElementById("LoseScreen").style.display = "flex";
+}
+function win() {
+    document.getElementById("WinScreen").style.display = "flex";
 }
 
 document.addEventListener("keypress",(e)=>{
